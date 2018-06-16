@@ -1,4 +1,7 @@
 %{
   "dialyxir": {:hex, :dialyxir, "1.0.0-rc.2", "1e68d42870c50dac013e8184254f232c32fa4164a4cdc001d723389cdee27b35", [:mix], [], "hexpm"},
+  "floki": {:hex, :floki, "0.20.2", "8828562cf23dafc5887c54779369fe08eb32121ff87bf98fb154c7a2d8316679", [:mix], [{:html_entities, "~> 0.4.0", [hex: :html_entities, repo: "hexpm", optional: false]}, {:mochiweb, "~> 2.15", [hex: :mochiweb, repo: "hexpm", optional: false]}], "hexpm"},
+  "html_entities": {:hex, :html_entities, "0.4.0", "f2fee876858cf6aaa9db608820a3209e45a087c5177332799592142b50e89a6b", [:mix], [], "hexpm"},
   "jason": {:hex, :jason, "1.0.0", "0f7cfa9bdb23fed721ec05419bcee2b2c21a77e926bce0deda029b5adc716fe2", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
+  "mochiweb": {:hex, :mochiweb, "2.15.0", "e1daac474df07651e5d17cc1e642c4069c7850dc4508d3db7263a0651330aacc", [:rebar3], [], "hexpm"},
 }

@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.ExResembleTest do
   use ExUnit.Case
+  alias ExResemble.{Supervisor, Diff, Folders}
 
   setup do
     ref_folder = Application.app_dir(:ex_resemble, "priv/references")
@@ -59,5 +60,20 @@ defmodule Mix.Tasks.ExResembleTest do
 
       assert_raise ExResemble.Error, fn -> Mix.Tasks.ExResemble.run(["--refs=#{refs}", "--tests=#{tests}"]) end
     end
+  end
+
+  test "diff_to_html/3 builds html", %{ref_folder: refs, test_folder: tests} do
+    opts = %Supervisor{folders: %Folders{tests: tests, refs: refs}}
+    html = Mix.Tasks.ExResemble.diff_to_html({"test_image_1.png", %Diff{}}, opts)
+    assert {"div", [{"class", "diff"}], _} = Floki.parse(html)
+  end
+
+  test "report/3 builds html and saves it to file", %{ref_folder: refs, test_folder: tests} do
+    opts = %Supervisor{folders: %Folders{tests: tests, refs: refs}}
+    diffs = [{"test_image_1.png", %Diff{}}]
+    assert Mix.Tasks.ExResemble.report(true, diffs, opts) == :ok
+    assert {:ok, html} = :ex_resemble |> Application.app_dir("priv/report.html") |> File.read()
+    assert {"html", _, _} = Floki.parse(html)
+
   end
 end

@@ -23,7 +23,8 @@ defmodule ExResemble.MixProject do
   defp deps do
     [
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :test], runtime: false},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:floki, "~> 0.20.2"}
     ]
   end
 end

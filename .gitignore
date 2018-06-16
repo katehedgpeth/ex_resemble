@@ -23,3 +23,5 @@ erl_crash.dump
 ex_resemble-*.tar
 
 /node_modules/
+/priv/tests/
+/priv/diffs/

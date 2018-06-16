@@ -1,0 +1,8 @@
+<html>
+  <head></head>
+  <body>
+    <div class="diffs">
+      <%= for diff <- diffs do diff end %>
+    </div>
+  </body>
+</html>

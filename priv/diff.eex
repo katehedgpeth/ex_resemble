@@ -1,0 +1,5 @@
+<div class="diff">
+  <h1 class="diff__name">
+    <%= file %>
+  </h1>
+</div>
