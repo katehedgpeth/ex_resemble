@@ -22,7 +22,8 @@ defmodule ExResemble.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :test], runtime: false},
+      {:jason, "~> 1.0"}
     ]
   end
 end

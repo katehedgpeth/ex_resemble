@@ -1,3 +1,4 @@
 %{
   "dialyxir": {:hex, :dialyxir, "1.0.0-rc.2", "1e68d42870c50dac013e8184254f232c32fa4164a4cdc001d723389cdee27b35", [:mix], [], "hexpm"},
+  "jason": {:hex, :jason, "1.0.0", "0f7cfa9bdb23fed721ec05419bcee2b2c21a77e926bce0deda029b5adc716fe2", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
 }

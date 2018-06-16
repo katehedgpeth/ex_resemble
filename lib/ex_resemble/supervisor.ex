@@ -1,6 +1,6 @@
 defmodule ExResemble.Supervisor do
   use GenServer
-  alias ExResemble.{Compare, Folders}
+  alias ExResemble.{Compare, Folders, Diff}
 
   defstruct [
     :caller,
@@ -61,6 +61,7 @@ defmodule ExResemble.Supervisor do
       ) do
     # all tests have run, but some tests failed
     :ok = GenServer.reply(from, {:error, state.failed})
+    {:noreply, state}
   end
 
   def handle_info(:run_test, %__MODULE__{current_test: {_, %Task{}}} = state) do
@@ -84,6 +85,10 @@ defmodule ExResemble.Supervisor do
   def handle_info({ref, :ok}, %__MODULE__{current_test: {_, %Task{ref: ref}}} = state) do
     send(self(), :run_test)
     {:noreply, %{state | current_test: nil}}
+  end
+  def handle_info({ref, {:error, %Diff{} = diff}}, %__MODULE__{current_test: {file, %Task{ref: ref}}} = state) do
+    send(self(), :run_test)
+    {:noreply, %{state | current_test: nil, failed: [{file, diff} | state.failed]}}
   end
 
   def handle_info({:DOWN, _ref, :process, _pid, :normal}, %__MODULE__{} = state) do

@@ -1,6 +1,6 @@
 defmodule ExResemble.SupervisorTest do
   use ExUnit.Case
-  alias ExResemble.{Supervisor, Folders}
+  alias ExResemble.{Supervisor, Folders, Diff}
 
   setup do
     ref_folder = Application.app_dir(:ex_resemble, "priv/references")
@@ -69,7 +69,24 @@ defmodule ExResemble.SupervisorTest do
       end
 
       {:ok, pid} = Supervisor.start_link(folders: [refs: refs, tests: test])
-      GenServer.call(pid, :run)
+      assert GenServer.call(pid, :run) == :ok
+    end
+
+    test ":run returns {:error, _} when tests fail", %{ref_folder: refs, test_folder: test} do
+      {:ok, ref_files} = File.ls(refs)
+      assert length(ref_files) > 1
+
+      assert :ok =
+                refs
+                |> Path.join("test_image_1.png")
+                |> File.cp(Path.join(test, "test_image_1.png"))
+      assert :ok =
+                refs
+                |> Path.join("test_image_1.png")
+                |> File.cp(Path.join(test, "test_image_2.png"))
+
+      {:ok, pid} = Supervisor.start_link(folders: [refs: refs, tests: test])
+      assert {:error, [{"test_image_2.png", %Diff{}}]} = GenServer.call(pid, :run)
     end
   end
 end

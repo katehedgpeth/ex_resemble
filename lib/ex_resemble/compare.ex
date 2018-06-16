@@ -1,5 +1,5 @@
 defmodule ExResemble.Compare do
-  alias ExResemble.Folders
+  alias ExResemble.{Folders, Diff}
 
   defstruct [:file_name, folders: %Folders{}]
 
@@ -26,10 +26,29 @@ defmodule ExResemble.Compare do
     |> do_compare(ref, args)
   end
 
+  @spec do_compare({:ok, String.t()} | {:error, any}, String.t(), t) :: :ok | {:error, Diff.t()}
   defp do_compare({:ok, test}, ref, %__MODULE__{}) when test == ref do
     :ok
   end
 
-  defp do_compare({:ok, _test}, _ref, %__MODULE__{}) do
+  defp do_compare({:ok, _test}, _ref, %__MODULE__{} = args) do
+    {:ok, pid} = GenServer.start_link(__MODULE__, args)
+    diff = GenServer.call(pid, :get_diff)
+    {:error, diff}
+  end
+
+  def init(args) do
+    {:ok, args}
+  end
+
+  def handle_call(:get_diff, _from, %__MODULE__{} = args) do
+    :ok = File.mkdir_p(args.folders.diffs)
+    ref_path = Path.join(args.folders.refs, args.file_name)
+    test_path = Path.join(args.folders.tests, args.file_name)
+    diff_path = Path.join(args.folders.diffs, "diff_" <> args.file_name)
+    js_file = Application.app_dir(:ex_resemble, "priv/resemble.js")
+    {result, 0} = System.cmd("node", [js_file, ref_path, test_path, diff_path])
+
+    {:reply, Diff.parse(result), args}
   end
 end
