@@ -13,29 +13,28 @@ defmodule Mix.Tasks.ExResemble do
     {opts, [], []} = OptionParser.parse(args, switches: [refs: :string, tests: :string, html: :boolean])
     {:ok, refs} = Keyword.fetch(opts, :refs)
     {:ok, tests} = Keyword.fetch(opts, :tests)
-    {:ok, pid} = GenServer.start_link(Supervisor, [folders: [refs: refs, tests: tests]])
-    case GenServer.call(pid, :run) do
-      :ok ->
+    case ExResemble.run([folders: [refs: refs, tests: tests]]) do
+      {:ok, %ExResemble{}} ->
         [:green, "All tests passed!  :)"]
         |> IO.ANSI.format()
         |> IO.puts()
         :ok
 
-      {:error, diffs} ->
+      {:error, diffs, %ExResemble{} = state} ->
         [:red, "Some tests failed  :("]
         |> IO.ANSI.format()
         |> IO.puts()
 
         opts
         |> Keyword.get(:html)
-        |> write_report(diffs, GenServer.call(pid, :state))
+        |> write_report(diffs, state)
         |> open_report(opts)
 
         raise ExResemble.Error, diffs: diffs
     end
   end
 
-  @spec write_report(boolean, [{String.t, Diff.t}], Supervisor.t) :: :ok
+  @spec write_report(boolean, [{String.t, Diff.t}], ExResemble.t) :: :ok
   def write_report(true, diffs, opts) do
     :ex_resemble
     |> Application.app_dir("priv")
@@ -64,7 +63,7 @@ defmodule Mix.Tasks.ExResemble do
     end
   end
 
-  def diff_to_html({file, %Diff{} = diff}, %Supervisor{folders: folders}) do
+  def diff_to_html({file, %Diff{} = diff}, %ExResemble{folders: folders}) do
     :ex_resemble
     |> Application.app_dir("priv")
     |> Path.join("diff.eex")

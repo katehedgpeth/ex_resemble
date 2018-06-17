@@ -1,6 +1,6 @@
 defmodule ExResemble.SupervisorTest do
   use ExUnit.Case
-  alias ExResemble.{Supervisor, Folders, Diff}
+  alias ExResemble.{Supervisor, Diff}
 
   setup do
     ref_folder = Application.app_dir(:ex_resemble, "priv/references")
@@ -31,30 +31,14 @@ defmodule ExResemble.SupervisorTest do
   end
 
   test "start_link" do
-    assert {:ok, pid} = Supervisor.start_link([])
+    assert {:ok, pid} = Supervisor.start_link(%ExResemble{})
     assert is_pid(pid)
-  end
-
-  describe "init" do
-    test "creates state struct", %{} do
-      assert {:ok, %Supervisor{}} = Supervisor.init([])
-    end
-
-    test "does not overwrite folders if they are provided" do
-      ref_folder = Application.app_dir(:ex_resemble)
-      assert {:ok, %Supervisor{folders: %Folders{refs: default_folder}}} = Supervisor.init([])
-
-      assert {:ok, %Supervisor{folders: %Folders{refs: ^ref_folder}}} =
-               Supervisor.init(folders: [refs: ref_folder])
-
-      refute default_folder == ref_folder
-    end
   end
 
   describe "handle_call" do
     test ":state returns state" do
-      {:ok, pid} = Supervisor.start_link([])
-      assert GenServer.call(pid, :state) == %Supervisor{}
+      {:ok, pid} = Supervisor.start_link(%ExResemble{})
+      assert GenServer.call(pid, :state) == %ExResemble{}
     end
 
     test ":run runs tests", %{ref_folder: refs, test_folder: test} do
@@ -68,7 +52,8 @@ defmodule ExResemble.SupervisorTest do
                  |> File.cp(Path.join(test, file_name))
       end
 
-      {:ok, pid} = Supervisor.start_link(folders: [refs: refs, tests: test])
+      state = ExResemble.parse_opts(folders: [refs: refs, tests: test])
+      {:ok, pid} = Supervisor.start_link(state)
       assert GenServer.call(pid, :run) == :ok
     end
 
@@ -85,7 +70,8 @@ defmodule ExResemble.SupervisorTest do
                 |> Path.join("test_image_1.png")
                 |> File.cp(Path.join(test, "test_image_2.png"))
 
-      {:ok, pid} = Supervisor.start_link(folders: [refs: refs, tests: test])
+      opts = ExResemble.parse_opts(folders: [refs: refs, tests: test])
+      {:ok, pid} = Supervisor.start_link(opts)
       assert {:error, [{"test_image_2.png", %Diff{}}]} = GenServer.call(pid, :run)
     end
   end
