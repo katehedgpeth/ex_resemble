@@ -47,7 +47,16 @@ defmodule ExResemble.Compare do
     test_path = Path.join(args.folders.tests, args.file_name)
     diff_path = Path.join(args.folders.diffs, "diff_" <> args.file_name)
     js_file = Application.app_dir(:ex_resemble, "priv/resemble.js")
-    {result, 0} = System.cmd("node", [js_file, ref_path, test_path, diff_path])
+    node_args = [
+      js_file,
+      ref_path,
+      test_path,
+      diff_path,
+      :ex_resemble
+      |> Application.get_env(:node_modules)
+      |> Path.join("resemblejs")
+    ]
+    {result, 0} = System.cmd("node", node_args)
 
     {:reply, Diff.parse(result), args}
   end

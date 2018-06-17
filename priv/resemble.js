@@ -1,4 +1,4 @@
-const Resemble = require("resemblejs");
+const Resemble = require(process.argv[5]);
 const File = require("fs");
 
 const file1 = File.readFileSync(process.argv[2]);

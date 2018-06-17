@@ -59,6 +59,8 @@ defmodule Mix.Tasks.ExResemble do
       {:ok, true} ->
         {"", 0} = System.cmd("open", [Application.app_dir(:ex_resemble, "priv/report.html")])
         :ok
+      _ ->
+        :ok
     end
   end
 

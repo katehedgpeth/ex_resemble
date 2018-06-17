@@ -58,7 +58,7 @@ defmodule Mix.Tasks.ExResembleTest do
                 |> Path.join("test_image_1.png")
                 |> File.cp(Path.join(tests, "test_image_2.png"))
 
-      assert_raise ExResemble.Error, fn -> Mix.Tasks.ExResemble.run(["--refs=#{refs}", "--tests=#{tests}"]) end
+      assert_raise ExResemble.Error, fn -> Mix.Tasks.ExResemble.run(["--refs=#{refs}", "--tests=#{tests}", "--no-html"]) end
     end
   end
 
@@ -71,7 +71,7 @@ defmodule Mix.Tasks.ExResembleTest do
   test "report/3 builds html and saves it to file", %{ref_folder: refs, test_folder: tests} do
     opts = %Supervisor{folders: %Folders{tests: tests, refs: refs}}
     diffs = [{"test_image_1.png", %Diff{}}]
-    assert Mix.Tasks.ExResemble.report(true, diffs, opts) == :ok
+    assert Mix.Tasks.ExResemble.write_report(true, diffs, opts) == :ok
     assert {:ok, html} = :ex_resemble |> Application.app_dir("priv/report.html") |> File.read()
     assert {"html", _, _} = Floki.parse(html)
 
